@@ -19,8 +19,8 @@ create table SUBJECT
 create table MARK
 (
     subjectId varchar(4) not null,
-    studentId  varchar(4) not null,
-    point     float    not null
+    studentId varchar(4) not null,
+    point     float      not null
 );
 alter table mark
     add constraint fk_mark_subjectid
@@ -115,12 +115,14 @@ where subjectId = 'MH05';
 # - Cập nhật lại điểm của học sinh có mã `S009` thành (MH01 : 8.5, MH02 : 7,MH03 : 5.5, MH04 : 6,
 # MH05 : 9).
 update mark
-set point = case subjectId when 'MH01' then 8.5
-when 'MH02' then 7
-when 'MH03' then 5.5
-when 'MH04' then 6
-when 'MH05' then 9
-end where studentId = 'S009';
+set point = case subjectId
+                when 'MH01' then 8.5
+                when 'MH02' then 7
+                when 'MH03' then 5.5
+                when 'MH04' then 6
+                when 'MH05' then 9
+    end
+where studentId = 'S009';
 # 3. Xoá dữ liệu[10 điểm]:
 # - Xoá toàn bộ thông tin của học sinh có mã `S010` bao gồm điểm thi ở bảng MARK và thông tin học sinh
 # này ở bảng STUDENT.
@@ -162,7 +164,7 @@ order by point desc;
 select case gender
            when 1 then 'Nam'
            when 0 then 'Nữ'
-    end 'Giới tính'
+    end              'Giới tính'
      , count(gender) 'Số lượng'
 from student
 group by gender;
@@ -193,40 +195,44 @@ from STUDENT_VIEW;
 # 2. Tạo VIEW có tên AVERAGE_MARK_VIEW lấy thông tin gồm:mã học sinh, tên học sinh,
 # điểm trung bình các môn học . [3 điểm]
 create view AVERAGE_MARK_VIEW as
-select student.studentId 'Mã HS',student.studentName 'Tên HS',avg(point) 'Điểm TB'
-from student join quanlydiemthi.mark m on student.studentId = m.studentId
+select student.studentId 'Mã HS', student.studentName 'Tên HS', avg(point) 'Điểm TB'
+from student
+         join quanlydiemthi.mark m on student.studentId = m.studentId
 group by student.studentId, student.studentName;
-select * from AVERAGE_MARK_VIEW;
+select *
+from AVERAGE_MARK_VIEW;
 # 3. Đánh Index cho trường `phoneNumber` của bảng STUDENT. [2 điểm]
-create INDEX index_phonenumber on STUDENT(phoneNumeber);
+create INDEX index_phonenumber on STUDENT (phoneNumeber);
 # 4. Tạo các PROCEDURE sau:
 # - Tạo PROC_INSERTSTUDENT dùng để thêm mới 1 học sinh bao gồm tất cả
 # thông tin học sinh đó. [3 điểm]
 DELIMITER $$
-create procedure PROC_INSERTSTUDENT(studentID_in varchar(4), studentName_in varchar(100), birthday_in date, gender_in bit(1), address_in text, phoneNumer_in varchar(45))
-begin	
+create procedure PROC_INSERTSTUDENT(studentID_in varchar(4), studentName_in varchar(100), birthday_in date,
+                                    gender_in bit(1), address_in text, phoneNumer_in varchar(45))
+begin
     insert into student(studentId, studentName, birthday, gender, address, phoneNumeber)
-        values (studentID_in,studentName_in,birthday_in,gender_in,address_in,phoneNumer_in);
+    values (studentID_in, studentName_in, birthday_in, gender_in, address_in, phoneNumer_in);
 end$$
 DELIMITER ;
-call PROC_INSERTSTUDENT('SV1','SV','2002-09-09',1,'HP','123456');
+call PROC_INSERTSTUDENT('SV1', 'SV', '2002-09-09', 1, 'HP', '123456');
 # - Tạo PROC_UPDATESUBJECT dùng để cập nhật tên môn học theo mã môn học.
 # [3 điểm]
 DELIMITER $$
-create procedure  PROC_UPDATESUBJECT(subjectId_in varchar(4), subjectName_in varchar(45))
+create procedure PROC_UPDATESUBJECT(subjectId_in varchar(4), subjectName_in varchar(45))
 begin
     update subject set subjectName = subjectName_in where subjectId = subjectId_in;
 end$$
 DELIMITER ;
-INSERT INTO `quanlydiemthi2`.`subject` (`subjectId`, `subjectName`, `priority`) VALUES ('MH06', 'GDCD', '2');
-call PROC_UPDATESUBJECT('MH06','Giao Duc');
+INSERT INTO subject (subjectId, subjectName, priority)
+values ('MH06', 'GDCD', '2');
+call PROC_UPDATESUBJECT('MH06', 'Giao Duc');
 # - Tạo PROC_DELETEMARK dùng để xoá toàn bộ điểm các môn học theo mã học
 # sinh. [3 điểm]
 DELIMITER $$
-create procedure  PROC_DELETEMARK(studentId_in varchar(4))
+create procedure PROC_DELETEMARK(studentId_in varchar(4))
 begin
-    delete from mark where studentId=studentId_in;
-    delete from student where studentId=studentId_in;
+    delete from mark where studentId = studentId_in;
+    delete from student where studentId = studentId_in;
 end$$
 DELIMITER ;
 call PROC_DELETEMARK('SV1')
