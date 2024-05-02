@@ -232,7 +232,6 @@ DELIMITER $$
 create procedure PROC_DELETEMARK(studentId_in varchar(4))
 begin
     delete from mark where studentId = studentId_in;
-    delete from student where studentId = studentId_in;
 end$$
 DELIMITER ;
 call PROC_DELETEMARK('SV1')
